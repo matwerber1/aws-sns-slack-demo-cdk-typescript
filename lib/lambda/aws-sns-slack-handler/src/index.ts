@@ -14,7 +14,7 @@ export const handler = async (event: any = {}): Promise<any> => {
 	var slack = new Slack({ webhookPath: webhookPath });
 	
 	const message = event.Records[0].Sns.Message;
-    console.log('Message received From SNS:', message);
+	console.log('Message received From SNS:', message);
     
 	var slackResponse = await slack.sendMessage(message);
 
