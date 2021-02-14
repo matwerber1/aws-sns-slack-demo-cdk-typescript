@@ -21,7 +21,6 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-chatbot": "^1.89.0",
     "@aws-cdk/aws-iam": "^1.89.0",
     "@aws-cdk/aws-lambda": "^1.89.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.89.0",

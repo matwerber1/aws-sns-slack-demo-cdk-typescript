@@ -1,5 +1,4 @@
 import * as cdk from '@aws-cdk/core';
-import * as chatbot from '@aws-cdk/aws-chatbot';
 import * as iam from '@aws-cdk/aws-iam';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import * as sns from '@aws-cdk/aws-sns';
