@@ -11,3 +11,5 @@ template.yaml
 output.txt
 
 .vscode
+
+dist/
