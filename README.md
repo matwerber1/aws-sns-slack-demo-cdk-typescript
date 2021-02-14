@@ -87,6 +87,13 @@ You can use Slack's Workflow Builder to create a webhook for your channel, which
     });
     ```
 
+1. Open `/lib/cdk-stack.ts` and change the `channelName` (Line 16) variable to match the channel name to which you will be publishing. This variable does not actually control the channel you publish to... that is instead determined by the webhook you created previously. This variable only determines the naming of certain resources (like your SNS topic) that the CDK will later create. 
+
+    ```js
+    // lib/cdk-stack.js, Line 16: 
+    const channelName = 'YOUR_CHANNEL_NAME';
+    ```
+
 1. From the project's root directory, install required Javascript dependencies: 
 
     ```js
