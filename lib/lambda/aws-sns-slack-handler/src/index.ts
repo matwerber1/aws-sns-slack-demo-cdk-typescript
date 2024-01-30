@@ -1,48 +1,54 @@
-//const https = require('https');
-import * as SecretsManager from "@aws-sdk/client-secrets-manager";
-import { HttpsResponse } from "./async-https-request";
-import { Slack } from "./slack";
+// Importing AWS SDK v3 Secrets Manager client and command
+import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
 
-var secretsManager = new SecretsManager.SecretsManager({});
+import {Slack} from "./slack";
+import {SnsEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
 
-export const handler = async (event: any = {}): Promise<any> => {
+// Initializing the Secrets Manager client
+const secretsManagerClient = new SecretsManagerClient({});
 
-	// for debugging purposes: 
+const handler = async (event: SnsEventSource) => {
 	console.log('Received event:', JSON.stringify(event, null, 2));
 
-	var webhookPath = await getWebhookPathFromSecretsManager();
-	var slack = new Slack({ webhookPath: webhookPath });
-	
-	const message = event.Records[0].Sns.Message;
-	console.log('Message received From SNS:', message);
-    
-	var slackResponse = await slack.sendMessage(message);
+	try {
+		const webhookPathSecret: string = await getWebhookPathFromSecretsManager();
+		const slack: Slack = new Slack({ webhookPath: webhookPathSecret });
 
-	var functionResponse = {
-		message: message,
-		status_code: slackResponse.statusCode,
-		response: slackResponse.responseBody
-	};
+		// @ts-ignore
+		const message = event.Records[0].Sns.Message;
+		console.log('Message received from SNS:', message);
 
-	console.log(JSON.stringify(functionResponse, null, 2));
-	console.log('Done!');
-	return functionResponse;
+		const slackResponse = await slack.sendMessage(message);
 
-}
+		const functionResponse = {
+			message,
+			status_code: slackResponse.statusCode,
+			response: slackResponse.responseBody
+		};
 
-async function getWebhookPathFromSecretsManager(): Promise<string> {
-	/**
-	 * The secret value in Secrets Manager must be like the one below for Slack Webhooks:
-	 * https://hooks.slack.com/workflows/XXXXX/XXXX/XXXX/XX
-	 **/
+		console.log(JSON.stringify(functionResponse, null, 2));
+		console.log('Done!');
+		return functionResponse;
+	} catch (error) {
+		console.error('Error handling the event:', error);
+		throw error;
+	}
+};
 
+const getWebhookPathFromSecretsManager = async () => {
 	console.log('Retrieving Slack webhook path from Secrets Manager...');
-	var data:SecretsManager.GetSecretValueCommandOutput = 
-		await secretsManager.getSecretValue({
+	try {
+		const command = new GetSecretValueCommand({
 			SecretId: process.env.WEBHOOK_SECRET_NAME
-	});
-	
-	var secret = JSON.parse(data.SecretString || "{}");
-	return secret.webhookPath;
+		});
 
-}
+		const { SecretString } = await secretsManagerClient.send(command);
+		const secret = JSON.parse(SecretString || "{}");
+		return secret.webhookPath;
+	} catch (error) {
+		console.error('Error retrieving the webhook path:', error);
+		throw error;
+	}
+};
+
+module.exports = { handler };
