@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
-import { CdkStack } from '../lib/cdk-stack';
+import {CdkStack} from "../lib/cdk-stack";
+import {App} from "aws-cdk-lib";
 
-const app = new cdk.App();
+const app = new App();
 
 const env = {
-    region: 'us-west-2',
+    region: 'us-east-1',
 };
 
 new CdkStack(app, 'CdkStack', {
